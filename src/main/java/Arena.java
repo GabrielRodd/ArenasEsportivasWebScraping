@@ -10,6 +10,8 @@ public class Arena {
     private String nome;
     private String endereco;
     private String numero;
+    private String cidade;
+
 
 }
 
