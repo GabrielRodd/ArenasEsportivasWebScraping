@@ -58,16 +58,38 @@ public class MapsScraper {
             driver.get(url);
 
             try {
-                WebElement paginaArena = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//h1[@class='DUwDvf lfPIob']")));
-                String nomeArena = paginaArena.getText();
-
+                //Extrair nome
+                WebElement nomeArenaGoogle = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//h1[@class='DUwDvf lfPIob']")));
+                String nomeArena = nomeArenaGoogle.getText();
                 ArenaModel arenaObj = new ArenaModel();
                 arenaObj.setNome(nomeArena);
+
+                //Extrair telefone
+                try {
+                    WebElement numeroArenaGoogle = driver.findElement(By.xpath("//div[contains(@class, 'Io6YTe') and starts-with(text(), '(')]"));
+                    String telefone = numeroArenaGoogle.getText();
+                    arenaObj.setNumero(telefone);
+
+                    ArenasEncontradas.add(arenaObj);
+
+                }  catch (Exception e) {
+                    arenaObj.setNumero("nao informado");
+                    System.out.println("Telefone nao encontrado para essa arena");
+                    ArenasEncontradas.add(arenaObj);
+                }
 
             } catch (Exception e) {
                 System.out.println("Erro ao processar URL: " + url);
             }
         }
+
+        //APENAS PARA TESTAR SE ESTA EXTRAINDO CORRETAMENTE
+        for (ArenaModel arena:ArenasEncontradas) {
+            System.out.println(arena.getNome());
+            System.out.println(arena.getNumero());
+        }
+
+
 
         return ArenasEncontradas;
     }
