@@ -1,3 +1,5 @@
+package com.model;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -5,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Arena {
+public class ArenaModel {
 
     private String nome;
     private String endereco;
