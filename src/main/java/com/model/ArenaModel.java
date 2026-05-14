@@ -13,6 +13,7 @@ public class ArenaModel {
     private String endereco;
     private String numero;
     private String cidade;
+    private String linkPaginaGoogleMaps;
 
 
 }
