@@ -8,11 +8,67 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.Scanner;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class MapsScraper {
+
+    public String buscarCidadePelaAPI(String enderecoCompleto) {
+        try {
+            // 1. Limpeza básica: O Google às vezes traz códigos no início.
+            // Vamos tentar pegar apenas o que vem antes do CEP ou focar no final.
+            String enderecoParaBusca = enderecoCompleto;
+            if (enderecoCompleto.contains(",")) {
+                // Pega as últimas partes (Geralmente: Bairro, Cidade - Estado)
+                String[] partes = enderecoCompleto.split(",");
+                if (partes.length > 2) {
+                    enderecoParaBusca = partes[partes.length - 2] + "," + partes[partes.length - 1];
+                }
+            }
+
+            String enderecoEncoded = URLEncoder.encode(enderecoParaBusca, StandardCharsets.UTF_8);
+            String urlString = "https://nominatim.openstreetmap.org/search?q=" + enderecoEncoded + "&format=json&addressdetails=1&limit=1";
+
+            URL url = new URL(urlString);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("User-Agent", "MeuScraperEsportivo/1.0");
+
+            if (conn.getResponseCode() == 200) {
+                Scanner sc = new Scanner(conn.getInputStream(), StandardCharsets.UTF_8);
+                StringBuilder sb = new StringBuilder();
+                while (sc.hasNext()) {
+                    sb.append(sc.nextLine());
+                }
+                sc.close();
+
+                String json = sb.toString();
+
+                // 2. Melhorando a captura: O Nominatim varia muito o nome do campo
+                String[] camposCidade = {"\"city\":\"", "\"town\":\"", "\"village\":\"", "\"municipality\":\"", "\"county\":\""};
+
+                for (String campo : camposCidade) {
+                    if (json.contains(campo)) {
+                        return json.split(campo)[1].split("\"")[0];
+                    }
+                }
+
+                // Se não achou cidade, mas achou o endereço, imprime o JSON pra gente debugar
+                System.out.println("JSON recebido mas cidade não filtrada: " + json);
+            }
+        } catch (Exception e) {
+            System.out.println("Erro na API: " + e.getMessage());
+        }
+        return "Cidade não identificada";
+    }
 
     public List<ArenaModel> buscarArenaModel(String cidade) {
         List<ArenaModel> ArenasEncontradas = new ArrayList<>();
@@ -57,8 +113,8 @@ public class MapsScraper {
         for (String url:urlArenas) {
             driver.get(url);
 
+            //Extrair nome
             try {
-                //Extrair nome
                 WebElement nomeArenaGoogle = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//h1[@class='DUwDvf lfPIob']")));
                 String nomeArena = nomeArenaGoogle.getText();
                 ArenaModel arenaObj = new ArenaModel();
@@ -70,13 +126,27 @@ public class MapsScraper {
                     String telefone = numeroArenaGoogle.getText();
                     arenaObj.setNumero(telefone);
 
-                    ArenasEncontradas.add(arenaObj);
 
                 }  catch (Exception e) {
                     arenaObj.setNumero("nao informado");
-                    System.out.println("Telefone nao encontrado para essa arena");
-                    ArenasEncontradas.add(arenaObj);
                 }
+
+                //Extrair endereco e cidade
+                try {
+                    WebElement enderecoArenaGoogle = driver.findElement(By.xpath("//button[contains(@aria-label, 'Endereço')]//div[contains(@class, 'Io6YTe')]"));
+                    String enderecoArena = enderecoArenaGoogle.getText();
+                    arenaObj.setEndereco(enderecoArena);
+
+                    //Define cidade
+                    String cidadeReal = buscarCidadePelaAPI(enderecoArena);
+                    arenaObj.setCidade(cidadeReal);
+
+                } catch (Exception e) {
+                    arenaObj.setEndereco("nao informado");
+                }
+
+            //Adiciona arena na lista de arenas
+            ArenasEncontradas.add(arenaObj);
 
             } catch (Exception e) {
                 System.out.println("Erro ao processar URL: " + url);
@@ -85,11 +155,8 @@ public class MapsScraper {
 
         //APENAS PARA TESTAR SE ESTA EXTRAINDO CORRETAMENTE
         for (ArenaModel arena:ArenasEncontradas) {
-            System.out.println(arena.getNome());
-            System.out.println(arena.getNumero());
+            System.out.println(arena);
         }
-
-
 
         return ArenasEncontradas;
     }
