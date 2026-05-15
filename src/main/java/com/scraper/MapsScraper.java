@@ -156,11 +156,6 @@ public class MapsScraper {
             }
         }
 
-        //APENAS PARA TESTAR SE ESTA EXTRAINDO CORRETAMENTE
-        for (ArenaModel arena:ArenasEncontradas) {
-            System.out.println(arena);
-        }
-
         return ArenasEncontradas;
     }
 }
