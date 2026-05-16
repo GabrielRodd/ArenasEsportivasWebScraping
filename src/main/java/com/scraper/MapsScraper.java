@@ -61,7 +61,7 @@ public class MapsScraper {
                     }
                 }
 
-                // Se não achou cidade, mas achou o endereço, imprime o JSON pra gente debugar
+                // Se não achou cidade, mas achou o endereço, imprime o JSON
                 System.out.println("JSON recebido mas cidade não filtrada: " + json);
             }
         } catch (Exception e) {
