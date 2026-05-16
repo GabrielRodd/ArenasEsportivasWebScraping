@@ -13,7 +13,7 @@ public class ArenaDAO {
         // SQL para criar a tabela se ela não existir
         String sqlCreateTable = "CREATE TABLE IF NOT EXISTS arenas (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                "nome TEXT," +
+                "nome TEXT UNIQUE," +
                 "telefone TEXT," +
                 "endereco TEXT," +
                 "cidade TEXT," +

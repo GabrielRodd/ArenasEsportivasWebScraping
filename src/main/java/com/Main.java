@@ -19,10 +19,10 @@ public class Main {
         //Criando lista de cidades a serem extraidas
         List<String> listaCidades = new ArrayList<>();
         listaCidades.add("Taubate");
-        //listaCidades.add("Sao Jose dos Campos");
-        //listaCidades.add("Pindamonhangaba");
-        //listaCidades.add("Jacarei");
-        //listaCidades.add("Cacapava");
+        listaCidades.add("Sao Jose dos Campos");
+        listaCidades.add("Pindamonhangaba");
+        listaCidades.add("Jacarei");
+        listaCidades.add("Cacapava");
 
 
         for (String cidade:listaCidades) {

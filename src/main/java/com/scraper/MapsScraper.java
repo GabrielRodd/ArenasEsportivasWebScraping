@@ -87,15 +87,25 @@ public class MapsScraper {
         // Navega pela div de resultados
         WebElement painelDeResultados = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@role='feed']")));
 
-        for (int i = 0; i < 1; i++) { // Faz scrolls
-            painelDeResultados.sendKeys(Keys.PAGE_DOWN);
+        // Scrolla Ate o Final da Pagina
+        boolean finalPaginaMaps = false;
+        while (finalPaginaMaps == false) {
+            //Quando achar o elemento retorna para a lista de elementos
+            List<WebElement> elementoAchado = driver.findElements(By.xpath("//span[@class='HlvSq']"));
 
-            // Pausa para o google carregar
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                System.out.println("A espera foi interrompida.");
+            if (elementoAchado.isEmpty()) {
+                painelDeResultados.sendKeys(Keys.PAGE_DOWN);
+
+                // Pausa para o google carregar
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    System.out.println("A espera foi interrompida.");
+                }
+            } else {
+                finalPaginaMaps = true;
+                System.out.println("chegou ao fim da pagina");
             }
         }
 
